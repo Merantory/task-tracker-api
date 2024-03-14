@@ -1,0 +1,18 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://${POSTGRES_SERVER}:${POSTGRES_PORT}/${POSTGRES_DB}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+  jpa:
+    generate-ddl: false
+    hibernate:
+      ddl-auto: none
+  kafka:
+    bootstrap-servers: ${$KAFKA_SERVER}
+
+kafka:
+  email-topic: ${KAFKA_EMAIL_TOPIC}
