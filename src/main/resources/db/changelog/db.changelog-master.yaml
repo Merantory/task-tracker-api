@@ -1,0 +1,16 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: Stanislav Tyunin
+      changes:
+        - tagDatabase:
+            tag: emptyDatabaseTag
+  - include:
+      relativeToChangelogFile: true
+      file: changeset/project_table.yaml
+  - include:
+      relativeToChangelogFile: true
+      file: changeset/task_table.yaml
+  - include:
+      relativeToChangelogFile: true
+      file: changeset/task_state_table.yaml

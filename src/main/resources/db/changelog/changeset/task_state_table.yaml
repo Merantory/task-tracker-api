@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: 3
+      author: Stanislav Tyunin
+      changes:
+        - tagDatabase:
+            tag: taskTableTag
+        - sqlFile:
+            dbms: "postgresql"
+            relativeToChangelogFile: true
+            path: sql/create_task_table.sql
+
+      rollback:
+        - sqlFile:
+            dbms: "postgresql"
+            relativeToChangelogFile: true
+            path: sql/rollback_task_table.sql
