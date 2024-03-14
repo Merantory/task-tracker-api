@@ -1,0 +1,97 @@
+version: '3'
+
+networks:
+  app:
+    driver: bridge
+
+services:
+  task-tracker-api:
+    image: merantory/task-tracker-api:latest
+    restart: always
+    container_name: task-tracker-api-container
+    networks:
+      - app
+    environment:
+      POSTGRES_SERVER: db
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: task-tracker
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+      KAFKA_SERVER: kafka:9092
+      KAFKA_EMAIL_TOPIC: email_message
+    ports:
+      - "80:8080"
+    depends_on:
+      - db
+      - kafka
+
+  email-sender:
+    image: merantory/email-sender:latest
+    restart: always
+    container_name: email-sender-container
+    networks:
+      - app
+    environment:
+      MAIL_HOST:
+      MAIL_PORT:
+      MAIL_USER:
+      MAIL_PASSWORD:
+      KAFKA_SERVER: kafka:9092
+      KAFKA_CONSUMER_GROUP_ID: 1
+    ports:
+      - "8081:8081"
+    depends_on:
+      - kafka
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.6.0
+    restart: always
+    container_name: zookeeper-container
+    networks:
+      - app
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+    ports:
+      - "2181:2181"
+    volumes:
+      - zookeeper-data:/var/lib/zookeeper/data
+
+  kafka:
+    image: confluentinc/cp-kafka:7.6.0
+    restart: always
+    container_name: kafka-container
+    networks:
+      - app
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
+    ports:
+      - "9092:9092"
+    volumes:
+      - kafka-data:/var/lib/kafka/data
+    depends_on:
+      - zookeeper
+
+  db:
+    image: postgres:16-alpine3.19
+    restart: always
+    container_name: postgres-container
+    networks:
+      - app
+    environment:
+      POSTGRES_DB: task-tracker
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    expose:
+      - "5432"
+
+volumes:
+  postgres-data:
+  zookeeper-data:
+  kafka-data:
